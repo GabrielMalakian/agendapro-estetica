@@ -6,7 +6,6 @@ import {
   CheckCheck,
   CircleCheck,
   CreditCard,
-  DoorOpen,
   MapPin,
   MessageSquare,
   Pencil,
@@ -475,6 +474,3 @@ export function AppointmentDetailSheet({
     </>
   );
 }
-
-/** Ícone reexportado para a lista de ações rápidas do profissional. */
-export { DoorOpen };

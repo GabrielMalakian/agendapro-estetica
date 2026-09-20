@@ -18,6 +18,10 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Artefatos gerados pelo Serwist no build — não são código nosso.
+      "public/sw.js",
+      "public/sw.js.map",
+      "public/swe-worker-*.js",
     ],
   },
 ];

@@ -3,15 +3,33 @@
 /**
  * Troca da cor primária em runtime.
  *
- * Toda a paleta deriva de `--brand` (ver `globals.css`), então a tela de
- * Aparência só precisa reescrever esse token — nenhum componente conhece a
- * cor diretamente.
+ * A aplicação **não** grava uma cor pronta: extrai matiz e croma da cor
+ * escolhida e escreve apenas `--brand-hue` e `--brand-chroma`. A
+ * luminosidade de cada token continua definida por modo em `globals.css`.
+ *
+ * Isso importa: um estilo inline em `documentElement` vence a classe
+ * `.dark`, então gravar `--brand-soft` claro deixaria o fundo do item ativo
+ * da sidebar claro no modo escuro, com texto claro em cima — ilegível. Do
+ * jeito atual, escolher um azul-marinho continua produzindo um azul claro
+ * legível no escuro e um azul escuro no claro.
  */
 
-/** Converte `#1f6f7a` em `oklch(...)` aproximado, aceito pelo CSS moderno. */
-export function hexToOklch(hex: string): string {
-  const normalized = hex.replace("#", "");
-  if (normalized.length !== 6) return hex;
+export interface BrandTone {
+  /** Matiz OKLCH, 0–360. */
+  hue: number;
+  /** Croma OKLCH, já limitado a uma faixa utilizável. */
+  chroma: number;
+}
+
+/** Croma mínimo abaixo do qual a cor lê como cinza. */
+const MIN_CHROMA = 0.02;
+/** Croma máximo: acima disso a interface fica berrante. */
+const MAX_CHROMA = 0.19;
+
+/** Extrai matiz e croma OKLCH de um `#rrggbb`. */
+export function hexToBrandTone(hex: string): BrandTone | null {
+  const normalized = hex.replace("#", "").trim();
+  if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return null;
 
   const toLinear = (channel: number): number => {
     const value = channel / 255;
@@ -22,19 +40,21 @@ export function hexToOklch(hex: string): string {
   const g = toLinear(parseInt(normalized.slice(2, 4), 16));
   const b = toLinear(parseInt(normalized.slice(4, 6), 16));
 
-  // sRGB linear → LMS (matriz do OKLab)
+  // sRGB linear → LMS → OKLab (Björn Ottosson)
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
   const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
   const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
 
-  const okL = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
   const okA = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
   const okB = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
 
   const chroma = Math.sqrt(okA * okA + okB * okB);
-  const hue = (Math.atan2(okB, okA) * 180) / Math.PI;
+  const hue = ((Math.atan2(okB, okA) * 180) / Math.PI + 360) % 360;
 
-  return `oklch(${okL.toFixed(3)} ${chroma.toFixed(3)} ${((hue + 360) % 360).toFixed(1)})`;
+  return {
+    hue: Number(hue.toFixed(1)),
+    chroma: Number(Math.min(MAX_CHROMA, Math.max(MIN_CHROMA, chroma)).toFixed(3)),
+  };
 }
 
 /** Aplica a cor primária no documento. Passar `null` restaura o padrão. */
@@ -43,25 +63,14 @@ export function applyBrandColor(color: string | null): void {
   const root = document.documentElement;
 
   if (!color) {
-    root.style.removeProperty("--brand");
-    root.style.removeProperty("--brand-ring");
-    root.style.removeProperty("--brand-soft");
+    root.style.removeProperty("--brand-hue");
+    root.style.removeProperty("--brand-chroma");
     return;
   }
 
-  const oklch = color.startsWith("#") ? hexToOklch(color) : color;
-  root.style.setProperty("--brand", oklch);
-  // O anel de foco e o acento suave derivam da mesma cor.
-  root.style.setProperty(
-    "--brand-ring",
-    oklch.replace(/oklch\(([\d.]+)/, (_, lightness: string) =>
-      `oklch(${Math.min(0.78, Number(lightness) + 0.12).toFixed(3)}`,
-    ),
-  );
-  root.style.setProperty(
-    "--brand-soft",
-    oklch
-      .replace(/oklch\(([\d.]+)/, () => "oklch(0.95")
-      .replace(/ ([\d.]+) /, " 0.025 "),
-  );
+  const tone = hexToBrandTone(color);
+  if (!tone) return;
+
+  root.style.setProperty("--brand-hue", String(tone.hue));
+  root.style.setProperty("--brand-chroma", String(tone.chroma));
 }

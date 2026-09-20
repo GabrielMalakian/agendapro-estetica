@@ -880,8 +880,9 @@ export function SettingsView() {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                A cor é aplicada sobrescrevendo o token CSS <code>--brand</code>,
-                do qual derivam botões, badges, gráficos e o anel de foco.
+                Guardamos só o matiz e o croma da cor escolhida: a
+                luminosidade continua definida por tema, então a mesma escolha
+                fica legível no claro e no escuro.
               </p>
             </CardContent>
           </Card>

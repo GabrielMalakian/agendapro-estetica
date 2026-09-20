@@ -3,6 +3,8 @@
 import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 
+import { InstallPrompt } from "@/components/layout/install-prompt";
+import { OfflineBanner } from "@/components/layout/offline-banner";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useDatabaseStore } from "@/data/store/database-store";
@@ -62,7 +64,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <TooltipProvider delayDuration={300}>
         <HydrationFallback />
         <BrandColorSync />
+        <OfflineBanner />
         {children}
+        <InstallPrompt />
         <Toaster position="top-right" richColors closeButton />
       </TooltipProvider>
     </ThemeProvider>

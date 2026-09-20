@@ -8,7 +8,7 @@
    AgendaPro — Design System
    Paleta própria: petróleo profundo (primária) + areia quente (acento),
    neutros levemente quentes. Escala de espaçamento em múltiplos de 4px.
-   A cor primária é configurável em runtime sobrescrevendo --brand-* no :root
+   A cor primária é configurável em runtime trocando --brand-hue/--brand-chroma
    (ver src/lib/theme/apply-brand.ts — usado pela tela de Aparência).
    ========================================================================== */
 
@@ -69,11 +69,20 @@
 }
 
 :root {
-  /* --- token de marca (único ponto de troca da cor primária) --- */
-  --brand: oklch(0.52 0.088 205);
-  --brand-foreground: oklch(0.985 0.005 200);
-  --brand-soft: oklch(0.95 0.022 205);
-  --brand-ring: oklch(0.62 0.075 205);
+  /*
+   * Marca. A troca de cor primária mexe só em --brand-hue e --brand-chroma;
+   * a LUMINOSIDADE de cada token é fixada por modo, logo abaixo e no bloco
+   * .dark. Gravar uma cor pronta no :root sobrescreveria o modo escuro
+   * (estilo inline vence classe) e apagaria, por exemplo, o texto do item
+   * ativo da sidebar.
+   */
+  --brand-hue: 205;
+  --brand-chroma: 0.088;
+
+  --brand: oklch(0.52 var(--brand-chroma) var(--brand-hue));
+  --brand-foreground: oklch(0.985 0.005 var(--brand-hue));
+  --brand-soft: oklch(0.95 calc(var(--brand-chroma) * 0.28) var(--brand-hue));
+  --brand-ring: oklch(0.62 calc(var(--brand-chroma) * 0.85) var(--brand-hue));
 
   --radius: 0.75rem;
 
@@ -135,10 +144,11 @@
 }
 
 .dark {
-  --brand: oklch(0.72 0.095 195);
-  --brand-foreground: oklch(0.19 0.03 215);
-  --brand-soft: oklch(0.3 0.04 205);
-  --brand-ring: oklch(0.6 0.08 200);
+  /* Mesmos matiz e croma; luminosidades próprias do fundo escuro. */
+  --brand: oklch(0.74 calc(var(--brand-chroma) * 1.05) var(--brand-hue));
+  --brand-foreground: oklch(0.19 calc(var(--brand-chroma) * 0.35) var(--brand-hue));
+  --brand-soft: oklch(0.3 calc(var(--brand-chroma) * 0.5) var(--brand-hue));
+  --brand-ring: oklch(0.62 calc(var(--brand-chroma) * 0.9) var(--brand-hue));
 
   --background: oklch(0.175 0.011 240);
   --foreground: oklch(0.955 0.004 230);
