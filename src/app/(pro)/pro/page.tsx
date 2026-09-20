@@ -1,10 +1,5 @@
-import { PageHeader } from "@/components/common/page-header";
+import { ProAgendaView } from "./pro-agenda-view";
 
-export default function Page() {
-  return (
-    <PageHeader
-      title="Minha agenda"
-      description="Em construção — esta tela é entregue nas próximas fases."
-    />
-  );
+export default function ProHomePage() {
+  return <ProAgendaView />;
 }
