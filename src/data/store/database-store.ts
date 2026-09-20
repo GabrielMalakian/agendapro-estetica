@@ -87,9 +87,21 @@ export const useDatabaseStore = create<DatabaseState>()(
           // os gráficos vazios, então regeneramos.
           const stale =
             state.seededOn !== todayKey() || state.db.companies.length === 0;
-          return stale
-            ? { db: createSeedDatabase(), seededOn: todayKey(), hydrated: true }
-            : { hydrated: true };
+          if (!stale) return { hydrated: true };
+
+          try {
+            return {
+              db: createSeedDatabase(),
+              seededOn: todayKey(),
+              hydrated: true,
+            };
+          } catch (cause) {
+            // Um erro aqui derrubaria a aplicação inteira antes do primeiro
+            // paint. Preferimos abrir vazio, com o motivo no console, a
+            // mostrar "Application error" em cima de uma tela branca.
+            console.error("Falha ao gerar a base de demonstração:", cause);
+            return { db: emptyDatabase(), seededOn: todayKey(), hydrated: true };
+          }
         }),
     }),
     {

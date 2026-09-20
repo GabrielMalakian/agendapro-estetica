@@ -381,8 +381,13 @@ export function buildAppointments(context: Context): AppointmentSeed {
 
   /* --------------------------- lista de espera ---------------------------- */
   for (const client of random.sample(clients, 6)) {
+    // Só serviços que alguém executa: um serviço sem profissional habilitado
+    // não pode virar entrada de lista de espera com preferência de pessoa.
     const available = services.filter(
-      (service) => service.unitId === client.unitId && service.active,
+      (service) =>
+        service.unitId === client.unitId &&
+        service.active &&
+        service.professionalIds.length > 0,
     );
     if (available.length === 0) continue;
     const service = random.pick(available);
