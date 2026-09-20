@@ -1,10 +1,12 @@
-import { PageHeader } from "@/components/common/page-header";
+import type { Metadata } from "next";
 
-export default function Page() {
-  return (
-    <PageHeader
-      title="Dashboard"
-      description="Em construção — esta tela é entregue nas próximas fases."
-    />
-  );
+import { DashboardView } from "./dashboard-view";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Visão do dia e dos últimos 30 dias.",
+};
+
+export default function AdminDashboardPage() {
+  return <DashboardView />;
 }

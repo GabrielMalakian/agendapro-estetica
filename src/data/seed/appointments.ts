@@ -297,18 +297,22 @@ export function buildAppointments(context: Context): AppointmentSeed {
 
           appointments.push(appointment);
 
-          if (paymentStatus !== "PENDING" && method) {
+          const paidAmount =
+            paymentStatus === "PAID"
+              ? price
+              : (appointment.depositAmount ?? Math.round(service.price * 0.3));
+
+          // Atendimento coberto por pacote tem preço zero: já foi pago na
+          // compra do pacote, então não gera lançamento no caixa do dia.
+          if (paymentStatus !== "PENDING" && method && paidAmount > 0) {
             payments.push({
               id: random.uuid(),
               appointmentId: appointment.id,
-              amount:
-                paymentStatus === "PAID"
-                  ? price
-                  : (appointment.depositAmount ?? Math.round(service.price * 0.3)),
+              amount: paidAmount,
               method,
-              paidAt: (paymentStatus === "PAID" ? endsAt : appointment.createdAt
-                ? new Date(appointment.createdAt)
-                : cursor
+              paidAt: (paymentStatus === "PAID"
+                ? endsAt
+                : new Date(appointment.createdAt)
               ).toISOString(),
             });
           }
