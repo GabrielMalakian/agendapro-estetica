@@ -60,6 +60,13 @@ interface DatabaseState {
   mutate: (recipe: (db: Database) => Database) => void;
   /** Recria a base a partir do seed (botão "Reiniciar demonstração"). */
   reset: () => void;
+  /**
+   * Conclui a hidratação: semeia a base se ela estiver vazia ou desatualizada
+   * e libera a UI. É uma ação do próprio store (e não uma chamada a
+   * `useDatabaseStore.setState`) porque `onRehydrateStorage` roda durante a
+   * criação do store, quando a constante exportada ainda não existe.
+   */
+  finishHydration: () => void;
 }
 
 export const DATABASE_STORAGE_KEY = "agendapro.database.v1";
@@ -73,22 +80,24 @@ export const useDatabaseStore = create<DatabaseState>()(
       mutate: (recipe) => set((state) => ({ db: recipe(state.db) })),
       reset: () =>
         set({ db: createSeedDatabase(), seededOn: todayKey(), hydrated: true }),
+      finishHydration: () =>
+        set((state) => {
+          if (state.hydrated) return state;
+          // O seed é relativo a "hoje": base de outro dia deixaria a agenda e
+          // os gráficos vazios, então regeneramos.
+          const stale =
+            state.seededOn !== todayKey() || state.db.companies.length === 0;
+          return stale
+            ? { db: createSeedDatabase(), seededOn: todayKey(), hydrated: true }
+            : { hydrated: true };
+        }),
     }),
     {
       name: DATABASE_STORAGE_KEY,
       version: DATABASE_VERSION,
       partialize: (state) => ({ db: state.db, seededOn: state.seededOn }),
       onRehydrateStorage: () => (state) => {
-        const stale = !state || state.seededOn !== todayKey();
-        if (stale) {
-          useDatabaseStore.setState({
-            db: createSeedDatabase(),
-            seededOn: todayKey(),
-            hydrated: true,
-          });
-          return;
-        }
-        useDatabaseStore.setState({ hydrated: true });
+        state?.finishHydration();
       },
     },
   ),

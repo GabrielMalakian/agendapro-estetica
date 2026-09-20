@@ -166,7 +166,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <BrandMark />
           </Link>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <NavLinks />
         </ScrollArea>
         <PublicPageLink />

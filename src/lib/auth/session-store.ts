@@ -27,6 +27,8 @@ export interface SessionState {
   signInAs: (role: Role) => boolean;
   signOut: () => void;
   setActiveUnit: (unitId: string) => void;
+  /** Ver a nota em `database-store.ts#finishHydration`. */
+  finishHydration: () => void;
 }
 
 export const SESSION_STORAGE_KEY = "agendapro.session.v1";
@@ -74,6 +76,8 @@ export const useSessionStore = create<SessionState>()(
       signOut: () => set({ user: null, activeUnitId: null }),
 
       setActiveUnit: (unitId) => set({ activeUnitId: unitId }),
+
+      finishHydration: () => set({ hydrated: true }),
     }),
     {
       name: SESSION_STORAGE_KEY,
@@ -82,8 +86,8 @@ export const useSessionStore = create<SessionState>()(
         user: state.user,
         activeUnitId: state.activeUnitId,
       }),
-      onRehydrateStorage: () => () => {
-        useSessionStore.setState({ hydrated: true });
+      onRehydrateStorage: () => (state) => {
+        state?.finishHydration();
       },
     },
   ),
