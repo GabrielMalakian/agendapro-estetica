@@ -1,26 +1,258 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   AgendaPro — Design System
+   Paleta própria: petróleo profundo (primária) + areia quente (acento),
+   neutros levemente quentes. Escala de espaçamento em múltiplos de 4px.
+   A cor primária é configurável em runtime sobrescrevendo --brand-* no :root
+   (ver src/lib/theme/apply-brand.ts — usado pela tela de Aparência).
+   ========================================================================== */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-text);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono-code);
+  --font-heading: var(--font-display);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 10px);
+
+  --shadow-card: 0 1px 2px 0 oklch(0.2 0.03 220 / 0.05), 0 1px 3px 0 oklch(0.2 0.03 220 / 0.04);
+  --shadow-raised: 0 2px 4px -1px oklch(0.2 0.03 220 / 0.06), 0 8px 20px -6px oklch(0.2 0.03 220 / 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* --- token de marca (único ponto de troca da cor primária) --- */
+  --brand: oklch(0.52 0.088 205);
+  --brand-foreground: oklch(0.985 0.005 200);
+  --brand-soft: oklch(0.95 0.022 205);
+  --brand-ring: oklch(0.62 0.075 205);
+
+  --radius: 0.75rem;
+
+  --background: oklch(0.994 0.002 95);
+  --foreground: oklch(0.205 0.012 235);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+
+  --secondary: oklch(0.965 0.004 230);
+  --secondary-foreground: oklch(0.28 0.014 235);
+
+  --muted: oklch(0.966 0.004 230);
+  --muted-foreground: oklch(0.505 0.014 235);
+
+  --accent: var(--brand-soft);
+  --accent-foreground: oklch(0.33 0.06 205);
+
+  --destructive: oklch(0.567 0.196 22);
+  --destructive-foreground: oklch(0.985 0.005 20);
+  --success: oklch(0.585 0.13 152);
+  --success-foreground: oklch(0.985 0.01 150);
+  --warning: oklch(0.72 0.145 72);
+  --warning-foreground: oklch(0.24 0.05 70);
+  --info: oklch(0.58 0.12 250);
+  --info-foreground: oklch(0.985 0.005 250);
+
+  --border: oklch(0.912 0.005 235);
+  --input: oklch(0.9 0.006 235);
+  --ring: var(--brand-ring);
+
+  /* paleta categórica para gráficos — distinguível em claro e escuro */
+  --chart-1: oklch(0.55 0.095 205);
+  --chart-2: oklch(0.68 0.13 68);
+  --chart-3: oklch(0.56 0.115 285);
+  --chart-4: oklch(0.63 0.12 155);
+  --chart-5: oklch(0.6 0.145 25);
+  --chart-6: oklch(0.63 0.08 235);
+
+  --sidebar: oklch(0.982 0.003 230);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: oklch(0.33 0.06 205);
+  --sidebar-border: oklch(0.915 0.005 235);
+  --sidebar-ring: var(--brand-ring);
+}
+
+.dark {
+  --brand: oklch(0.72 0.095 195);
+  --brand-foreground: oklch(0.19 0.03 215);
+  --brand-soft: oklch(0.3 0.04 205);
+  --brand-ring: oklch(0.6 0.08 200);
+
+  --background: oklch(0.175 0.011 240);
+  --foreground: oklch(0.955 0.004 230);
+
+  --card: oklch(0.216 0.013 240);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.232 0.014 240);
+  --popover-foreground: var(--foreground);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+
+  --secondary: oklch(0.27 0.013 240);
+  --secondary-foreground: oklch(0.955 0.004 230);
+
+  --muted: oklch(0.266 0.013 240);
+  --muted-foreground: oklch(0.715 0.012 235);
+
+  --accent: var(--brand-soft);
+  --accent-foreground: oklch(0.93 0.02 200);
+
+  --destructive: oklch(0.67 0.175 22);
+  --destructive-foreground: oklch(0.985 0.005 20);
+  --success: oklch(0.7 0.13 155);
+  --success-foreground: oklch(0.18 0.03 155);
+  --warning: oklch(0.79 0.14 74);
+  --warning-foreground: oklch(0.22 0.05 70);
+  --info: oklch(0.7 0.11 250);
+  --info-foreground: oklch(0.18 0.03 250);
+
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: var(--brand-ring);
+
+  --chart-1: oklch(0.72 0.1 195);
+  --chart-2: oklch(0.77 0.13 70);
+  --chart-3: oklch(0.7 0.12 288);
+  --chart-4: oklch(0.74 0.13 155);
+  --chart-5: oklch(0.7 0.15 25);
+  --chart-6: oklch(0.72 0.08 240);
+
+  --sidebar: oklch(0.2 0.012 240);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: var(--brand-foreground);
+  --sidebar-accent: var(--brand-soft);
+  --sidebar-accent-foreground: oklch(0.93 0.02 200);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--brand-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  /* foco visível consistente em toda a aplicação (acessibilidade) */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  ::selection {
+    background-color: var(--brand-soft);
+    color: var(--accent-foreground);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* faixas de status da agenda — usadas na timeline e nos badges */
+  .status-scheduled {
+    --status: var(--info);
+  }
+  .status-confirmed {
+    --status: var(--success);
+  }
+  .status-completed {
+    --status: var(--brand);
+  }
+  .status-cancelled {
+    --status: var(--muted-foreground);
+  }
+  .status-no_show {
+    --status: var(--destructive);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
