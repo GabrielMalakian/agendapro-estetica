@@ -42,6 +42,8 @@ export interface Contraindication {
 
 /* -------------------------------------------------------------------------
  * DENTAL — plano de tratamento e orçamento
+ * (na demo de clínica de estética as mesmas entidades descrevem protocolos
+ * em etapas e seus orçamentos — `tooth` fica vazio)
  * ---------------------------------------------------------------------- */
 
 export const TREATMENT_STEP_STATUSES = [

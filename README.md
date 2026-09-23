@@ -1,12 +1,17 @@
 # AgendaPro
 
-SaaS de agendamento para clínicas estéticas, consultórios odontológicos,
-salões e barbearias.
+SaaS de agendamento para **clínicas de estética e bem-estar**.
 
 Este repositório contém o **frontend de um MVP navegável**: um produto
 completo de ponta a ponta, com dados fictícios que vivem no navegador e
 autenticação simulada. Serve para demonstrar o sistema a um cliente e, ao
 mesmo tempo, para especificar o backend que virá depois.
+
+A demonstração é encenada na **Clínica Lumière**, uma clínica fictícia de
+estética em Curitiba com duas unidades, seis profissionais e um catálogo de
+estética facial, estética corporal e bem-estar. O modelo de dados continua
+multi-segmento (o campo `segment` da empresa aceita também odontologia,
+salão e barbearia); o que mudou foi o recorte da demonstração.
 
 ---
 
@@ -17,9 +22,10 @@ npm install
 npm run dev
 ```
 
-Abra <http://localhost:3000>. Nenhuma variável de ambiente, nenhum banco,
-nenhuma chave de API — a base de demonstração é gerada no primeiro acesso e
-guardada no `localStorage`.
+Abra <http://localhost:3000>. A raiz é a **página de apresentação**, de onde
+se escolhe entre área do cliente, do profissional e do desenvolvedor.
+Nenhuma variável de ambiente, nenhum banco, nenhuma chave de API — a base de
+demonstração é gerada no primeiro acesso e guardada no `localStorage`.
 
 | Comando | O que faz |
 | --- | --- |
@@ -40,12 +46,19 @@ Senha igual para os três: **`demo123`**
 
 | Perfil | E-mail | Quem é | Cai em |
 | --- | --- | --- | --- |
-| Administrador | `admin@demo.com` | Marina Alves, dona do Studio Vitrine | `/admin` |
-| Profissional | `pro@demo.com` | Ana Souza, cabeleireira e esteticista | `/pro` |
+| Administrador | `admin@demo.com` | Marina Alves, dona da Clínica Lumière | `/admin` |
+| Profissional | `pro@demo.com` | Ana Souza, esteticista facial | `/pro` |
 | Cliente | `cliente@demo.com` | Gabriel Lima | `/app` |
 
 A tela de login também tem três botões de acesso rápido, e o menu do usuário
-tem **"Trocar de perfil"** — dá para alternar entre os três sem sair.
+tem **"Trocar de perfil"** — dá para alternar entre os três sem sair. Os
+cards de "Como você deseja acessar?" da página inicial levam ao login com o
+perfil já preenchido (`/login?perfil=cliente`), e `?proximo=/app/agendar`
+manda direto para o fluxo de agendamento depois de entrar.
+
+Há ainda a **área do desenvolvedor** em `/dev`, sem login: status da
+aplicação, contadores da base local, mapa de rotas, versões e logs derivados
+dos eventos da própria base.
 
 ---
 
@@ -110,7 +123,7 @@ contagem regressiva. Toque em **Agendar horário**: serviço → profissional
 (ou "primeiro disponível") → data (dias sem vaga vêm desabilitados) →
 horário → resumo com sinal → confirmação.
 
-Feche com a vitrine pública: abra `/studio-vitrine` — a página que o
+Feche com a vitrine pública: abra `/clinica-lumiere` — a página que o
 estabelecimento divulga, com serviços, preços, equipe e avaliação média.
 
 ---
@@ -157,12 +170,17 @@ backend, não uma descrição do que existe.
 ```
 src/
   app/
-    (public)/login, (public)/[slug]   vitrine pública do estabelecimento
+    page.tsx                          página de apresentação (hero, serviços,
+                                      "como você deseja acessar?", contato)
+    (public)/login                    entrada, com perfil pré-selecionável
+    (public)/dev                      painel técnico da demonstração
+    (public)/[slug]                   vitrine pública do estabelecimento
     (admin)/admin/...                 dashboard, agenda, clientes, financeiro…
     (pro)/pro/...                     área do profissional
     (client)/app/...                  área do cliente
     sw.ts                             service worker (Serwist)
   components/
+    site/        seções da página de apresentação
     ui/          shadcn/ui
     scheduling/  grade da agenda, formulários, detalhe do atendimento
     charts/      recharts com paleta validada para daltonismo
@@ -182,6 +200,7 @@ src/
     theme/        troca da cor primária em runtime
   types/         DTOs no formato da futura API
 docs/            contrato da API e roadmap
+public/images/   fotos da vitrine (Pexels, créditos em CREDITS.md)
 ```
 
 ### Três decisões que explicam o resto
@@ -197,11 +216,14 @@ de propósito: garante que os estados de carregamento sejam reais desde já.
 para o NestJS sem reescrita — o que evita o pior bug possível neste domínio:
 a agenda do cliente discordando da agenda da recepção.
 
-**A cor da marca é um token só.** Toda a paleta deriva de `--brand`; a tela
-de Aparência troca esse valor e botões, gráficos, badges e anel de foco
-acompanham. A paleta dos gráficos é separada, com 4 cores em ordem fixa,
-validada para daltonismo em claro e escuro — e todo gráfico tem alternativa
-em tabela, para a leitura nunca depender só da cor.
+**A cor da marca é um token só.** Toda a paleta deriva de `--brand` — um
+rosé profundo sobre superfícies off-white, bege e nude, com Poppins em toda
+a tipografia. A tela de Aparência troca só o matiz e o croma da marca, e
+botões, badges e anel de foco acompanham; a luminosidade de cada token é
+fixada por modo, para o tema escuro nunca ficar ilegível. A paleta dos
+gráficos é separada, com 4 cores em ordem fixa, validada para daltonismo em
+claro e escuro — e todo gráfico tem alternativa em tabela, para a leitura
+nunca depender só da cor.
 
 ---
 
@@ -231,4 +253,8 @@ cada gráfico.
 - **LGPD.** Campos de saúde, contraindicações e fichas de evolução são dados
   pessoais sensíveis. Estão marcados no código com o que o backend real
   precisa fazer: cifragem em repouso, base legal, consentimento e auditoria.
-- **Nenhuma chamada de rede externa** em tempo de execução.
+- **Nenhuma chamada de rede externa** em tempo de execução. As fotos da
+  vitrine são arquivos locais em `public/images` (banco de imagens Pexels,
+  licença livre; créditos em [`public/images/CREDITS.md`](./public/images/CREDITS.md)).
+  As pessoas nas fotos são modelos de banco de imagens e não têm relação com
+  os dados fictícios da demonstração.

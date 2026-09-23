@@ -2,12 +2,17 @@
 
 import {
   CalendarPlus,
+  ChevronRight,
   Clock,
+  History,
   MapPin,
   Package,
+  PackageOpen,
   RotateCcw,
   Sparkles,
   Star,
+  Timer,
+  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -32,11 +37,45 @@ import {
   formatCountdown,
   formatCurrency,
   formatDateLong,
+  formatDuration,
   formatTime,
 } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 import { CancelAppointmentDialog } from "./cancel-appointment-dialog";
 import { ReviewDialog } from "./review-dialog";
+
+/** Os quatro caminhos que o cliente usa no dia a dia. */
+const QUICK_ACTIONS = [
+  {
+    href: "/app/agendar",
+    label: "Novo agendamento",
+    hint: "Serviço, profissional e horário",
+    icon: CalendarPlus,
+    primary: true,
+  },
+  {
+    href: "/app/agendamentos",
+    label: "Meus agendamentos",
+    hint: "Próximos horários marcados",
+    icon: PackageOpen,
+    primary: false,
+  },
+  {
+    href: "/app/perfil",
+    label: "Meu perfil",
+    hint: "Dados, pacotes e preferências",
+    icon: UserRound,
+    primary: false,
+  },
+  {
+    href: "/app/agendamentos?aba=historico",
+    label: "Histórico",
+    hint: "Atendimentos já realizados",
+    icon: History,
+    primary: false,
+  },
+] as const;
 
 export function ClientHome() {
   const { client, loading: loadingClient } = useCurrentClient();
@@ -99,6 +138,7 @@ export function ClientHome() {
     );
   }
 
+  const serviceById = new Map((services ?? []).map((item) => [item.id, item]));
   const serviceName = new Map((services ?? []).map((item) => [item.id, item.name]));
   const professionalName = new Map(
     (professionals ?? []).map((item) => [item.id, item.name]),
@@ -136,115 +176,183 @@ export function ClientHome() {
     );
 
   return (
-    <div className="space-y-5">
-      <header className="space-y-1">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
-          Olá, {firstName(client.name)}
+    <div className="space-y-6">
+      <header className="animate-rise space-y-1">
+        <p className="text-sm font-light text-muted-foreground">Área do cliente</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          Olá, {firstName(client.name)}!
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm font-light text-muted-foreground">
           {next
-            ? "Seu próximo horário está confirmado abaixo."
+            ? "Seu próximo atendimento está confirmado abaixo."
             : "Você não tem horários marcados."}
         </p>
       </header>
 
-      {/* Próximo agendamento */}
-      {loading && !appointments ? (
-        <ListSkeleton rows={1} />
-      ) : next ? (
-        <Card className="overflow-hidden border-primary/40">
-          <div className="bg-primary px-4 py-2 text-primary-foreground">
-            <p className="flex items-center gap-2 text-xs font-medium">
-              <Clock className="size-3.5" aria-hidden />
-              Próximo horário · {formatCountdown(next.startsAt)}
-            </p>
-          </div>
-          <CardContent className="space-y-3 py-4">
-            <div className="space-y-1">
-              <p className="font-display text-xl font-semibold">
-                {serviceName.get(next.serviceId) ?? "Serviço"}
+      {/* Próximo atendimento */}
+      <section className="animate-rise stagger-1 space-y-2">
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          <Timer className="size-4 text-primary" aria-hidden />
+          Próximo atendimento
+        </h2>
+
+        {loading && !appointments ? (
+          <ListSkeleton rows={1} />
+        ) : next ? (
+          <Card className="overflow-hidden border-primary/40 py-0 shadow-card">
+            <div className="bg-primary px-5 py-2.5 text-primary-foreground">
+              <p className="flex items-center gap-2 text-xs font-medium">
+                <Clock className="size-3.5" aria-hidden />
+                {formatCountdown(next.startsAt)}
               </p>
-              <p className="text-sm text-muted-foreground">
-                {formatDateLong(next.startsAt)} às {formatTime(next.startsAt)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                com {professionalName.get(next.professionalId) ?? "profissional"}
-              </p>
+            </div>
+            <CardContent className="space-y-4 px-5 py-5">
+              <div className="space-y-1">
+                <p className="font-display text-xl font-semibold">
+                  {serviceName.get(next.serviceId) ?? "Serviço"}
+                </p>
+                <p className="text-sm font-light text-muted-foreground first-letter:uppercase">
+                  {formatDateLong(next.startsAt)} às {formatTime(next.startsAt)}
+                </p>
+              </div>
+
+              <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs font-light text-muted-foreground">
+                    Profissional
+                  </dt>
+                  <dd className="font-medium">
+                    {professionalName.get(next.professionalId) ?? "A definir"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-light text-muted-foreground">Duração</dt>
+                  <dd className="font-medium">
+                    {formatDuration(
+                      serviceById.get(next.serviceId)?.durationMinutes ??
+                        Math.round(
+                          (new Date(next.endsAt).getTime() -
+                            new Date(next.startsAt).getTime()) /
+                            60000,
+                        ),
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-light text-muted-foreground">Status</dt>
+                  <dd className="pt-0.5">
+                    <StatusBadge status={next.status} />
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-light text-muted-foreground">Valor</dt>
+                  <dd className="font-medium tabular-nums">
+                    {next.price > 0 ? formatCurrency(next.price) : "Incluso no pacote"}
+                  </dd>
+                </div>
+              </dl>
+
               {unit && (
-                <p className="flex items-start gap-1.5 pt-1 text-xs text-muted-foreground">
+                <p className="flex items-start gap-1.5 border-t border-border pt-3 text-xs font-light text-muted-foreground">
                   <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden />
                   {unit.name} — {unit.address}
                 </p>
               )}
-            </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusBadge status={next.status} />
-              <span className="text-sm font-medium tabular-nums">
-                {next.price > 0 ? formatCurrency(next.price) : "Incluso no pacote"}
+              <div className="flex gap-2">
+                <Button asChild variant="outline" className="flex-1">
+                  <Link href={`/app/agendar?reagendar=${next.id}`}>Reagendar</Link>
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => setCancelId(next.id)}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <EmptyState
+            icon={CalendarPlus}
+            title="Nenhum horário marcado"
+            description="Escolha um serviço e veja os horários disponíveis."
+            action={
+              <Button asChild size="sm">
+                <Link href="/app/agendar">Agendar horário</Link>
+              </Button>
+            }
+          />
+        )}
+      </section>
+
+      {/* Atalhos principais */}
+      <nav aria-label="Atalhos" className="grid grid-cols-2 gap-3">
+        {QUICK_ACTIONS.map((action, index) => (
+          <Link
+            key={action.href}
+            href={action.href}
+            className={cn(
+              "animate-rise card-lift group flex flex-col gap-3 rounded-2xl border p-4 shadow-card",
+              `stagger-${index + 1}`,
+              action.primary
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-card hover:border-primary/40",
+            )}
+          >
+            <span
+              className={cn(
+                "flex size-10 items-center justify-center rounded-xl",
+                action.primary
+                  ? "bg-primary-foreground/15"
+                  : "bg-accent text-accent-foreground",
+              )}
+              aria-hidden
+            >
+              <action.icon className="size-5" />
+            </span>
+            <span className="space-y-0.5">
+              <span className="flex items-center gap-1 text-sm font-medium">
+                {action.label}
+                <ChevronRight
+                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                  aria-hidden
+                />
               </span>
-            </div>
-
-            <div className="flex gap-2">
-              <Button asChild variant="outline" className="flex-1">
-                <Link href={`/app/agendar?reagendar=${next.id}`}>Reagendar</Link>
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={() => setCancelId(next.id)}
+              <span
+                className={cn(
+                  "block text-xs font-light",
+                  action.primary
+                    ? "text-primary-foreground/80"
+                    : "text-muted-foreground",
+                )}
               >
-                Cancelar
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <EmptyState
-          icon={CalendarPlus}
-          title="Nenhum horário marcado"
-          description="Escolha um serviço e veja os horários disponíveis."
-          action={
-            <Button asChild size="sm">
-              <Link href="/app/agendar">Agendar horário</Link>
-            </Button>
-          }
-        />
-      )}
+                {action.hint}
+              </span>
+            </span>
+          </Link>
+        ))}
+      </nav>
 
-      {/* Atalhos */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Button asChild size="lg" className="h-auto justify-start gap-3 py-3">
-          <Link href="/app/agendar">
-            <CalendarPlus className="size-5 shrink-0" aria-hidden />
-            <span className="text-left">
-              <span className="block text-sm font-medium">Agendar horário</span>
-              <span className="block text-xs opacity-80">
-                Escolher serviço, profissional e data
+      {/* Repetir o último serviço */}
+      {lastCompleted && (
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto w-full justify-start gap-3 py-3"
+        >
+          <Link href={`/app/agendar?servico=${lastCompleted.serviceId}`}>
+            <RotateCcw className="size-5 shrink-0" aria-hidden />
+            <span className="min-w-0 text-left">
+              <span className="block text-sm font-medium">Agendar de novo</span>
+              <span className="block truncate text-xs font-light text-muted-foreground">
+                {serviceName.get(lastCompleted.serviceId) ?? "Último serviço"}
               </span>
             </span>
           </Link>
         </Button>
-
-        {lastCompleted && (
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-auto justify-start gap-3 py-3"
-          >
-            <Link href={`/app/agendar?servico=${lastCompleted.serviceId}`}>
-              <RotateCcw className="size-5 shrink-0" aria-hidden />
-              <span className="min-w-0 text-left">
-                <span className="block text-sm font-medium">Agendar de novo</span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {serviceName.get(lastCompleted.serviceId) ?? "Último serviço"}
-                </span>
-              </span>
-            </Link>
-          </Button>
-        )}
-      </div>
+      )}
 
       {/* Avaliação pendente */}
       {pendingReview && (

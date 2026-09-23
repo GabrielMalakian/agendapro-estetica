@@ -1,31 +1,47 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { JetBrains_Mono, Poppins } from "next/font/google";
 
 import { Providers } from "@/components/layout/providers";
 
 import "./globals.css";
 
-/** Tipografia: uma display para títulos, uma de texto para o resto. */
-const display = Plus_Jakarta_Sans({
+/**
+ * Tipografia: Poppins em toda a interface.
+ *
+ * 300 para textos leves (legendas, apoios), 400 no corpo, 500/600 em botões e
+ * títulos de seção, 700 nos títulos principais. É a mesma família nas duas
+ * variáveis — `--font-display` existe para manter a distinção semântica entre
+ * título e texto, caso a marca troque a display depois.
+ */
+const poppins = Poppins({
+  variable: "--font-text",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const poppinsDisplay = Poppins({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
   weight: ["500", "600", "700"],
 });
 
-const text = Inter({
-  variable: "--font-text",
+/** Monoespaçada de apoio: credenciais, ids e os logs da área do desenvolvedor. */
+const mono = JetBrains_Mono({
+  variable: "--font-mono-code",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "AgendaPro — Agendamento para clínicas, salões e barbearias",
+    default: "AgendaPro — Agendamento para clínicas de estética",
     template: "%s · AgendaPro",
   },
   description:
-    "Agenda, clientes, financeiro e lembretes em um só lugar. Demonstração navegável do AgendaPro.",
+    "Agenda, clientes, financeiro e lembretes para clínicas de estética e bem-estar. Demonstração navegável do AgendaPro.",
   applicationName: "AgendaPro",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -48,8 +64,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f9f9" },
-    { media: "(prefers-color-scheme: dark)", color: "#15191d" },
+    { media: "(prefers-color-scheme: light)", color: "#fdf9f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#171311" },
   ],
 };
 
@@ -57,8 +73,18 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${display.variable} ${text.variable} antialiased`}>
+    /*
+     * As variáveis de fonte ficam no <html>, e não no <body>: `html` recebe
+     * `font-sans`, que resolve `var(--font-text)` no escopo do próprio
+     * elemento. Declaradas só no <body>, a variável não existe em `html` e a
+     * família cai no serifado padrão do navegador.
+     */
+    <html
+      lang="pt-BR"
+      suppressHydrationWarning
+      className={`${poppins.variable} ${poppinsDisplay.variable} ${mono.variable}`}
+    >
+      <body className="antialiased">
         <a
           href="#conteudo"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"

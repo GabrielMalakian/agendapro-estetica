@@ -40,20 +40,20 @@ const CONTRAINDICATION_LABELS: [string, Contraindication["severity"]][] = [
 ];
 
 const TREATMENT_TITLES = [
-  "Reabilitação estética anterior",
-  "Tratamento periodontal",
-  "Plano ortodôntico inicial",
-  "Restaurações posteriores",
+  "Protocolo facial — manchas e textura",
+  "Protocolo corporal — flacidez",
+  "Plano de depilação a laser",
+  "Protocolo de rejuvenescimento",
 ];
 
 const STEP_TITLES = [
-  "Profilaxia inicial",
-  "Restauração em resina",
-  "Tratamento de canal",
-  "Instalação de coroa",
-  "Clareamento supervisionado",
-  "Raspagem subgengival",
-  "Reavaliação",
+  "Avaliação e fotografia inicial",
+  "Sessão de limpeza preparatória",
+  "Aplicação do protocolo principal",
+  "Sessão de manutenção",
+  "Home care orientado",
+  "Reavaliação com comparativo",
+  "Alta do protocolo",
 ];
 
 export function buildSegmentData(context: Context): SegmentSeed {
@@ -128,17 +128,20 @@ export function buildSegmentData(context: Context): SegmentSeed {
     });
   }
 
-  /* -------------------------------- DENTAL -------------------------------- */
-  const dentist = professionals.find((pro) => pro.specialty.includes("dentista"));
-  const dentalClients = random.sample(clients, 8);
+  /* ------------------------ PLANOS E ORÇAMENTOS --------------------------- */
+  const planLead =
+    professionals.find((pro) => pro.specialty.includes("Biomédica")) ??
+    professionals[0];
+  const planClients = random.sample(clients, 8);
 
-  for (const client of dentalClients) {
+  for (const client of planClients) {
     const stepCount = random.int(3, 5);
     const steps: TreatmentStep[] = Array.from({ length: stepCount }, (_, index) => ({
       id: random.uuid(),
       order: index + 1,
       title: STEP_TITLES[index % STEP_TITLES.length],
-      tooth: random.pick(["11", "12", "21", "26", "36", "46", "—"]),
+      /* Campo herdado do módulo odontológico; na estética não há dente. */
+      tooth: "—",
       status:
         index === 0
           ? "DONE"
@@ -159,7 +162,7 @@ export function buildSegmentData(context: Context): SegmentSeed {
     const plan: TreatmentPlan = {
       id: random.uuid(),
       clientId: client.id,
-      professionalId: dentist?.id ?? professionals[0].id,
+      professionalId: planLead.id,
       title: random.pick(TREATMENT_TITLES),
       createdAt: addDays(today, -random.int(10, 150)).toISOString(),
       steps,
@@ -189,7 +192,7 @@ export function buildSegmentData(context: Context): SegmentSeed {
         ? [
             {
               id: random.uuid(),
-              name: "radiografia-panoramica.pdf",
+              name: "avaliacao-fotografica.pdf",
               mimeType: "application/pdf",
               sizeKb: random.int(220, 1800),
             },

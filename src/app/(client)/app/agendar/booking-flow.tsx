@@ -10,7 +10,6 @@ import {
   Loader2,
   MapPin,
   PartyPopper,
-  Scissors,
   Sparkles,
   UserRound,
   Wallet,
@@ -427,7 +426,7 @@ export function BookingFlow() {
                         )}
                       >
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                          <Scissors className="size-4" aria-hidden />
+                          <Sparkles className="size-4" aria-hidden />
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">
@@ -648,7 +647,7 @@ export function BookingFlow() {
           <Card>
             <CardContent className="space-y-3 py-4">
               <div className="flex items-start gap-3">
-                <Scissors className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <Sparkles className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
                 <div>
                   <p className="font-medium">{service.name}</p>
                   <p className="text-xs text-muted-foreground">

@@ -6,8 +6,10 @@
 
 /* ==========================================================================
    AgendaPro — Design System
-   Paleta própria: petróleo profundo (primária) + areia quente (acento),
-   neutros levemente quentes. Escala de espaçamento em múltiplos de 4px.
+   Clínica de estética: off-white quente, nude e bege claro nas superfícies,
+   rosé profundo (primária) nos botões e elementos de ação. Neutros com um
+   toque quente, bordas generosas e sombras difusas — nada de contraste duro.
+   Escala de espaçamento em múltiplos de 4px.
    A cor primária é configurável em runtime trocando --brand-hue/--brand-chroma
    (ver src/lib/theme/apply-brand.ts — usado pela tela de Aparência).
    ========================================================================== */
@@ -64,8 +66,9 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 10px);
 
-  --shadow-card: 0 1px 2px 0 oklch(0.2 0.03 220 / 0.05), 0 1px 3px 0 oklch(0.2 0.03 220 / 0.04);
-  --shadow-raised: 0 2px 4px -1px oklch(0.2 0.03 220 / 0.06), 0 8px 20px -6px oklch(0.2 0.03 220 / 0.1);
+  --shadow-card: 0 1px 2px 0 oklch(0.35 0.03 35 / 0.04), 0 2px 8px -2px oklch(0.35 0.03 35 / 0.05);
+  --shadow-raised: 0 2px 6px -2px oklch(0.35 0.03 35 / 0.06), 0 12px 32px -12px oklch(0.35 0.03 35 / 0.14);
+  --shadow-soft: 0 24px 60px -30px oklch(0.35 0.04 30 / 0.28);
 }
 
 :root {
@@ -75,19 +78,25 @@
    * .dark. Gravar uma cor pronta no :root sobrescreveria o modo escuro
    * (estilo inline vence classe) e apagaria, por exemplo, o texto do item
    * ativo da sidebar.
+   *
+   * Padrão da clínica: rosé profundo — sóbrio o bastante para botão e
+   * discreto o bastante para não competir com as fotos dos procedimentos.
    */
-  --brand-hue: 205;
-  --brand-chroma: 0.088;
+  --brand-hue: 18;
+  --brand-chroma: 0.075;
 
-  --brand: oklch(0.52 var(--brand-chroma) var(--brand-hue));
+  --brand: oklch(0.46 var(--brand-chroma) var(--brand-hue));
   --brand-foreground: oklch(0.985 0.005 var(--brand-hue));
-  --brand-soft: oklch(0.95 calc(var(--brand-chroma) * 0.28) var(--brand-hue));
-  --brand-ring: oklch(0.62 calc(var(--brand-chroma) * 0.85) var(--brand-hue));
+  --brand-soft: oklch(0.955 calc(var(--brand-chroma) * 0.4) var(--brand-hue));
+  --brand-ring: oklch(0.6 calc(var(--brand-chroma) * 0.9) var(--brand-hue));
 
-  --radius: 0.75rem;
+  /* 14px: botões e campos arredondados sem virar pílula; os cards herdam
+     radius-xl (18px) e radius-2xl (24px), que é onde o ar premium aparece. */
+  --radius: 0.875rem;
 
-  --background: oklch(0.994 0.002 95);
-  --foreground: oklch(0.205 0.012 235);
+  /* Superfícies: off-white quente, bege claro e nude — nunca branco puro no fundo. */
+  --background: oklch(0.985 0.006 72);
+  --foreground: oklch(0.255 0.014 42);
 
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
@@ -97,80 +106,87 @@
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
 
-  --secondary: oklch(0.965 0.004 230);
-  --secondary-foreground: oklch(0.28 0.014 235);
+  --secondary: oklch(0.955 0.012 72);
+  --secondary-foreground: oklch(0.32 0.018 45);
 
-  --muted: oklch(0.966 0.004 230);
-  --muted-foreground: oklch(0.505 0.014 235);
+  --muted: oklch(0.958 0.011 72);
+  --muted-foreground: oklch(0.48 0.016 45);
 
   --accent: var(--brand-soft);
-  --accent-foreground: oklch(0.33 0.06 205);
+  --accent-foreground: oklch(0.36 0.06 18);
 
-  --destructive: oklch(0.567 0.196 22);
+  --destructive: oklch(0.552 0.196 24);
   --destructive-foreground: oklch(0.985 0.005 20);
-  --success: oklch(0.585 0.13 152);
+  --success: oklch(0.55 0.11 155);
   --success-foreground: oklch(0.985 0.01 150);
-  --warning: oklch(0.72 0.145 72);
+  --warning: oklch(0.7 0.13 72);
   --warning-foreground: oklch(0.24 0.05 70);
-  --info: oklch(0.58 0.12 250);
+  --info: oklch(0.55 0.1 250);
   --info-foreground: oklch(0.985 0.005 250);
 
-  --border: oklch(0.912 0.005 235);
-  --input: oklch(0.9 0.006 235);
+  --border: oklch(0.905 0.009 65);
+  --input: oklch(0.885 0.011 65);
   --ring: var(--brand-ring);
 
   /*
    * Paleta categórica dos gráficos — 4 slots, em ordem fixa, nunca ciclada.
-   * Validada com o script de checagem de daltonismo: banda de luminosidade,
-   * piso de croma, separação CVD (ΔE OKLab em todos os pares), piso de visão
-   * normal e contraste contra a superfície — tudo PASS em claro e escuro.
-   * O verde (chart-4) fica logo abaixo de 3:1 contra o fundo claro, por isso
-   * todo gráfico que o usa traz rótulo direto ou legenda visível.
+   * Reafinada junto com a identidade da clínica: o laranja virou terracota e
+   * o roxo puxou para a ameixa, para conversarem com o rosé da marca; o azul
+   * e o verde seguram a separação para daltonismo.
+   *
+   * Validada com o checador de paleta (banda de luminosidade, piso de croma,
+   * separação CVD par a par, piso de visão normal e contraste) contra a
+   * superfície do card — PASS em todos os itens, no claro e no escuro.
+   * Contra o bege do fundo da página, e não do card, o verde (chart-4) fica
+   * em 2,9:1; por isso todo gráfico que o usa traz rótulo direto ou legenda
+   * visível.
+   *
+   * A cor NÃO segue a marca nem a ordem de grandeza: ela identifica a série.
    * Uma 5ª série vira "Outros" ou um segundo gráfico — nunca uma cor nova.
    */
-  --chart-1: oklch(0.52 0.14 215);
-  --chart-2: oklch(0.6 0.17 50);
-  --chart-3: oklch(0.52 0.18 292);
-  --chart-4: oklch(0.68 0.15 142);
+  --chart-1: oklch(0.52 0.14 225);
+  --chart-2: oklch(0.57 0.15 35);
+  --chart-3: oklch(0.51 0.17 305);
+  --chart-4: oklch(0.65 0.14 155);
 
-  --sidebar: oklch(0.982 0.003 230);
+  --sidebar: oklch(0.975 0.008 68);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: var(--brand-foreground);
   --sidebar-accent: var(--brand-soft);
-  --sidebar-accent-foreground: oklch(0.33 0.06 205);
-  --sidebar-border: oklch(0.915 0.005 235);
+  --sidebar-accent-foreground: oklch(0.36 0.06 18);
+  --sidebar-border: oklch(0.908 0.009 65);
   --sidebar-ring: var(--brand-ring);
 }
 
 .dark {
   /* Mesmos matiz e croma; luminosidades próprias do fundo escuro. */
-  --brand: oklch(0.74 calc(var(--brand-chroma) * 1.05) var(--brand-hue));
-  --brand-foreground: oklch(0.19 calc(var(--brand-chroma) * 0.35) var(--brand-hue));
-  --brand-soft: oklch(0.3 calc(var(--brand-chroma) * 0.5) var(--brand-hue));
+  --brand: oklch(0.72 calc(var(--brand-chroma) * 1.15) var(--brand-hue));
+  --brand-foreground: oklch(0.2 calc(var(--brand-chroma) * 0.4) var(--brand-hue));
+  --brand-soft: oklch(0.32 calc(var(--brand-chroma) * 0.55) var(--brand-hue));
   --brand-ring: oklch(0.62 calc(var(--brand-chroma) * 0.9) var(--brand-hue));
 
-  --background: oklch(0.175 0.011 240);
-  --foreground: oklch(0.955 0.004 230);
+  --background: oklch(0.19 0.008 42);
+  --foreground: oklch(0.955 0.005 72);
 
-  --card: oklch(0.216 0.013 240);
+  --card: oklch(0.232 0.01 42);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.232 0.014 240);
+  --popover: oklch(0.248 0.011 42);
   --popover-foreground: var(--foreground);
 
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
 
-  --secondary: oklch(0.27 0.013 240);
-  --secondary-foreground: oklch(0.955 0.004 230);
+  --secondary: oklch(0.285 0.011 42);
+  --secondary-foreground: oklch(0.955 0.005 72);
 
-  --muted: oklch(0.266 0.013 240);
-  --muted-foreground: oklch(0.715 0.012 235);
+  --muted: oklch(0.278 0.011 42);
+  --muted-foreground: oklch(0.725 0.012 60);
 
   --accent: var(--brand-soft);
-  --accent-foreground: oklch(0.93 0.02 200);
+  --accent-foreground: oklch(0.93 0.025 20);
 
-  --destructive: oklch(0.67 0.175 22);
+  --destructive: oklch(0.67 0.175 24);
   --destructive-foreground: oklch(0.985 0.005 20);
   --success: oklch(0.7 0.13 155);
   --success-foreground: oklch(0.18 0.03 155);
@@ -183,18 +199,20 @@
   --input: oklch(1 0 0 / 16%);
   --ring: var(--brand-ring);
 
-  /* Passos próprios para o fundo escuro — não é um espelho do modo claro. */
-  --chart-1: oklch(0.6 0.13 215);
-  --chart-2: oklch(0.57 0.17 50);
-  --chart-3: oklch(0.56 0.18 292);
-  --chart-4: oklch(0.665 0.15 142);
+  /* Passos próprios para o fundo escuro — não é um espelho do modo claro.
+     O verde precisa descer mais que os outros para caber na banda de
+     luminosidade do checador contra o card escuro. */
+  --chart-1: oklch(0.62 0.14 225);
+  --chart-2: oklch(0.63 0.15 35);
+  --chart-3: oklch(0.58 0.17 305);
+  --chart-4: oklch(0.62 0.15 155);
 
-  --sidebar: oklch(0.2 0.012 240);
+  --sidebar: oklch(0.212 0.009 42);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: var(--brand-foreground);
   --sidebar-accent: var(--brand-soft);
-  --sidebar-accent-foreground: oklch(0.93 0.02 200);
+  --sidebar-accent-foreground: oklch(0.93 0.025 20);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: var(--brand-ring);
 }
@@ -210,8 +228,10 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Poppins é geométrica e "fecha" rápido: um pouco de folga entre linhas
+       e um tracking levemente negativo nos títulos deixam o texto respirando. */
+    @apply bg-background font-sans text-foreground antialiased;
+    font-synthesis-weight: none;
   }
 
   h1,
@@ -219,6 +239,11 @@
   h3,
   h4 {
     @apply font-display tracking-tight;
+    letter-spacing: -0.015em;
+  }
+
+  h1 {
+    letter-spacing: -0.025em;
   }
 
   /* foco visível consistente em toda a aplicação (acessibilidade) */
@@ -233,6 +258,91 @@
 }
 
 @layer utilities {
+  /*
+   * Animações de entrada. Discretas de propósito: 400–600ms, deslocamento
+   * pequeno e sempre com `animation-fill-mode: both`, para o elemento não
+   * piscar antes de começar. `.stagger-*` escalona uma lista de cards sem
+   * precisar de JavaScript.
+   */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes soft-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-rise {
+    animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-soft-fade {
+    animation: soft-fade 0.6s ease-out both;
+  }
+
+  .stagger-1 {
+    animation-delay: 60ms;
+  }
+  .stagger-2 {
+    animation-delay: 120ms;
+  }
+  .stagger-3 {
+    animation-delay: 180ms;
+  }
+  .stagger-4 {
+    animation-delay: 240ms;
+  }
+  .stagger-5 {
+    animation-delay: 300ms;
+  }
+
+  /* Card premium: elevação suave que responde ao ponteiro sem "pular". */
+  .card-lift {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s ease;
+  }
+
+  @media (hover: hover) {
+    .card-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-raised);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-rise,
+    .animate-soft-fade {
+      animation: none;
+    }
+
+    .card-lift,
+    .card-lift:hover {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Fundo decorativo das seções institucionais — nude em degradê. */
+  .bg-blush {
+    background-image:
+      radial-gradient(60% 55% at 12% 0%, var(--brand-soft), transparent 70%),
+      radial-gradient(45% 50% at 95% 15%, var(--secondary), transparent 65%);
+  }
+
   /* faixas de status da agenda — usadas na timeline e nos badges */
   .status-scheduled {
     --status: var(--info);

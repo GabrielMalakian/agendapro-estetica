@@ -56,4 +56,4 @@ export interface Database {
 }
 
 /** Versão do schema persistido — incrementar invalida o cache do localStorage. */
-export const DATABASE_VERSION = 1;
+export const DATABASE_VERSION = 2;

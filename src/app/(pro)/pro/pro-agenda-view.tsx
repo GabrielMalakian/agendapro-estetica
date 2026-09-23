@@ -9,17 +9,21 @@ import {
 } from "date-fns";
 import {
   CalendarDays,
+  CalendarX2,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Hourglass,
   Lock,
   Timer,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { EmptyState, ErrorState, ListSkeleton } from "@/components/common/states";
 import { BlockFormDialog } from "@/components/scheduling/block-form-dialog";
-import { StatusBadge } from "@/components/scheduling/status-badge";
+import { STATUS_STYLES, StatusBadge } from "@/components/scheduling/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +53,23 @@ import type { Appointment } from "@/types";
 import { ProAppointmentSheet } from "./pro-appointment-sheet";
 
 type ProView = "DAY" | "WEEK";
+
+/** Diferença em minutos entre dois horários "HH:mm" da mesma grade. */
+function minutesBetween(start: string, end: string): number {
+  const [startHour, startMinute] = start.split(":").map(Number);
+  const [endHour, endMinute] = end.split(":").map(Number);
+  return endHour * 60 + endMinute - (startHour * 60 + startMinute);
+}
+
+/** "3h 30" / "45 min" — formato curto dos indicadores. */
+function formatMinutes(total: number): string {
+  if (total <= 0) return "0 min";
+  const hours = Math.floor(total / 60);
+  const minutes = total % 60;
+  if (hours === 0) return `${minutes} min`;
+  if (minutes === 0) return `${hours}h`;
+  return `${hours}h ${String(minutes).padStart(2, "0")}`;
+}
 
 export function ProAgendaView() {
   const { professional, loading: loadingPro } = useCurrentProfessional();
@@ -145,6 +166,52 @@ export function ProAgendaView() {
     (item) => item.status !== "CANCELLED",
   );
 
+  /**
+   * Minutos de trabalho do profissional no período — a base de "tempo livre".
+   * Vem da grade do próprio profissional (folga e intervalo já descontados),
+   * não do horário de funcionamento da unidade.
+   */
+  const workingMinutes = (() => {
+    const days =
+      view === "DAY"
+        ? [cursor]
+        : eachDayOfInterval({
+            start: startOfWeek(cursor, { weekStartsOn: 0 }),
+            end: endOfWeek(cursor, { weekStartsOn: 0 }),
+          });
+
+    return days.reduce((total, day) => {
+      const grid = professional?.workingHours.find(
+        (hours) => hours.weekday === day.getDay(),
+      );
+      if (!grid?.enabled) return total;
+
+      const span = minutesBetween(grid.startTime, grid.endTime);
+      const pause =
+        grid.breakStart && grid.breakEnd
+          ? minutesBetween(grid.breakStart, grid.breakEnd)
+          : 0;
+      return total + Math.max(0, span - pause);
+    }, 0);
+  })();
+
+  const bookedMinutes = active.reduce(
+    (total, item) =>
+      total +
+      Math.round(
+        (new Date(item.endsAt).getTime() - new Date(item.startsAt).getTime()) /
+          60000,
+      ),
+    0,
+  );
+
+  const freeMinutes = Math.max(0, workingMinutes - bookedMinutes);
+
+  const completedCount = active.filter((item) => item.status === "COMPLETED").length;
+  const cancelledCount = (appointments ?? []).filter(
+    (item) => item.status === "CANCELLED" || item.status === "NO_SHOW",
+  ).length;
+
   const now = new Date();
   const next = active
     .filter(
@@ -172,13 +239,21 @@ export function ProAgendaView() {
         type="button"
         onClick={() => setDetailId(appointment.id)}
         className={cn(
-          "flex w-full items-start gap-3 rounded-xl border bg-card p-3 text-left transition-colors",
+          "relative flex w-full items-start gap-3 overflow-hidden rounded-xl border bg-card p-3 pl-4 text-left transition-colors",
           highlight
             ? "border-primary/50 ring-2 ring-primary/15"
             : "border-border hover:bg-accent/40",
           appointment.status === "COMPLETED" && "opacity-70",
         )}
       >
+        {/* Faixa de status: leitura da agenda em uma passada de olho. */}
+        <span
+          className={cn(
+            "absolute inset-y-0 left-0 w-1.5",
+            STATUS_STYLES[appointment.status].bar,
+          )}
+          aria-hidden
+        />
         <span className="flex w-14 shrink-0 flex-col items-center rounded-lg bg-muted py-1.5">
           <span className="text-sm font-semibold tabular-nums">
             {formatTime(appointment.startsAt)}
@@ -209,16 +284,75 @@ export function ProAgendaView() {
   return (
     <div className="space-y-4">
       {/* Cabeçalho */}
-      <header className="space-y-1">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
-          Olá, {firstName(professional.name)}
+      <header className="animate-rise space-y-1">
+        <p className="text-sm font-light text-muted-foreground">
+          {professional.specialty}
+        </p>
+        <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          Olá, {firstName(professional.name)}!
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm font-light text-muted-foreground">
           {active.length === 0
             ? "Nenhum atendimento no período."
             : `${active.length} ${active.length === 1 ? "atendimento" : "atendimentos"} ${view === "DAY" ? formatRelativeDay(cursor).toLowerCase() : "nesta semana"}.`}
         </p>
       </header>
+
+      {/* Indicadores do período */}
+      <section
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+        aria-label="Resumo do período"
+      >
+        {[
+          {
+            icon: Users,
+            label: view === "DAY" ? "Atendimentos do dia" : "Atendimentos na semana",
+            value: String(active.length),
+            tone: "bg-accent text-accent-foreground",
+          },
+          {
+            icon: CheckCheck,
+            label: "Concluídos",
+            value: String(completedCount),
+            tone: "bg-success/10 text-success",
+          },
+          {
+            icon: Hourglass,
+            label: "Horários disponíveis",
+            value: formatMinutes(freeMinutes),
+            tone: "bg-info/10 text-info",
+          },
+          {
+            icon: CalendarX2,
+            label: "Cancelamentos",
+            value: String(cancelledCount),
+            tone: "bg-muted text-muted-foreground",
+          },
+        ].map((tile, index) => (
+          <Card
+            key={tile.label}
+            className={`animate-rise stagger-${index + 1} gap-0 py-4`}
+          >
+            <CardContent className="space-y-2 px-4">
+              <span
+                className={cn(
+                  "flex size-8 items-center justify-center rounded-lg",
+                  tile.tone,
+                )}
+                aria-hidden
+              >
+                <tile.icon className="size-4" />
+              </span>
+              <p className="font-display text-xl font-semibold tabular-nums">
+                {tile.value}
+              </p>
+              <p className="text-xs leading-snug font-light text-muted-foreground">
+                {tile.label}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
 
       {/* Próximo atendimento em destaque */}
       {next && (

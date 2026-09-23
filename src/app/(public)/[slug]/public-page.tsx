@@ -6,7 +6,7 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  Scissors,
+  Sparkles,
   Star,
 } from "lucide-react";
 import Link from "next/link";
@@ -198,7 +198,7 @@ export function PublicPage({ slug }: { slug: string }) {
                       <Card>
                         <CardContent className="flex flex-wrap items-center gap-3 py-3">
                           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                            <Scissors className="size-4" aria-hidden />
+                            <Sparkles className="size-4" aria-hidden />
                           </span>
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">{service.name}</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers, Pencil, Plus, Power, Scissors, Search } from "lucide-react";
+import { Layers, Pencil, Plus, Power, Sparkles, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -274,7 +274,7 @@ export function ServicesView() {
                   setFormOpen(true);
                 }}
               >
-                <Scissors className="size-3.5" aria-hidden />
+                <Sparkles className="size-3.5" aria-hidden />
                 Criar serviço
               </Button>
             ),

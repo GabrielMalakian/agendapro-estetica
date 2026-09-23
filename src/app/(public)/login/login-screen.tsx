@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ArrowLeft,
   BriefcaseBusiness,
   CalendarCheck,
   ChevronRight,
@@ -11,7 +12,9 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession, useSessionActions } from "@/lib/auth/use-session";
+import { cn } from "@/lib/utils";
 import { ROLE_HOME, type Role } from "@/types";
 
 const schema = z.object({
@@ -43,20 +47,24 @@ const QUICK_ACCESS: {
   description: string;
   email: string;
   icon: typeof ShieldCheck;
+  /** Valor aceito em `?perfil=` — usado pelos cards da página inicial. */
+  slug: string;
 }[] = [
   {
     role: "ADMIN",
     label: "Entrar como Administrador",
-    description: "Marina Alves · visão completa da empresa",
+    description: "Marina Alves · visão completa da clínica",
     email: "admin@demo.com",
     icon: ShieldCheck,
+    slug: "admin",
   },
   {
     role: "PROFESSIONAL",
     label: "Entrar como Profissional",
-    description: "Ana Souza · cabeleireira e esteticista",
+    description: "Ana Souza · esteticista facial",
     email: "pro@demo.com",
     icon: BriefcaseBusiness,
+    slug: "profissional",
   },
   {
     role: "CLIENT",
@@ -64,20 +72,40 @@ const QUICK_ACCESS: {
     description: "Gabriel Lima · app de agendamento",
     email: "cliente@demo.com",
     icon: UserRound,
+    slug: "cliente",
   },
 ];
 
 const HIGHLIGHTS = [
   "Agenda por profissional e por sala, com detecção de conflito.",
-  "Motor de horários que respeita folga, buffer e sala ocupada.",
-  "Financeiro, comissões e relatórios prontos para apresentar.",
+  "Motor de horários que respeita folga, buffer e equipamento ocupado.",
+  "Ficha de evolução, financeiro e relatórios prontos para apresentar.",
 ];
+
+/**
+ * Destino após entrar, vindo de `?proximo=`.
+ *
+ * Só caminhos internos: uma URL absoluta em uma querystring é vetor clássico
+ * de open redirect, e `//host` também escapa da origem.
+ */
+function safeNextPath(value: string | null): string | null {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+}
 
 export function LoginScreen() {
   const router = useRouter();
+  const params = useSearchParams();
   const { user, ready } = useSession();
   const { signIn, signInAs } = useSessionActions();
   const [quickPending, setQuickPending] = useState<Role | null>(null);
+
+  const nextPath = safeNextPath(params.get("proximo"));
+  /** Perfil sugerido pelos cards de "Como você deseja acessar?". */
+  const suggested = QUICK_ACCESS.find(
+    (option) => option.slug === params.get("perfil"),
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -86,8 +114,16 @@ export function LoginScreen() {
 
   // Quem já está autenticado não vê a tela de login.
   useEffect(() => {
-    if (ready && user) router.replace(ROLE_HOME[user.role]);
-  }, [ready, user, router]);
+    if (ready && user) router.replace(nextPath ?? ROLE_HOME[user.role]);
+  }, [ready, user, router, nextPath]);
+
+  // Perfil indicado na URL: o formulário já chega preenchido.
+  useEffect(() => {
+    if (!suggested) return;
+    form.setValue("email", suggested.email);
+    form.setValue("password", "demo123");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggested?.email]);
 
   if (!ready) return <AppBootScreen label="Preparando a demonstração…" />;
   if (user) return <AppBootScreen label="Redirecionando…" />;
@@ -124,6 +160,19 @@ export function LoginScreen() {
     >
       {/* Painel de apresentação — só no desktop */}
       <section className="relative hidden flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:flex">
+        <Image
+          src="/images/equipe-atendimento.jpg"
+          alt=""
+          fill
+          priority
+          sizes="52vw"
+          aria-hidden
+          className="object-cover opacity-20"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-primary/70"
+          aria-hidden
+        />
         <div
           className="pointer-events-none absolute inset-0 opacity-25"
           aria-hidden
@@ -138,7 +187,7 @@ export function LoginScreen() {
         </div>
 
         <div className="relative max-w-md space-y-6">
-          <h1 className="font-display text-4xl leading-tight font-semibold">
+          <h1 className="font-display text-4xl leading-tight font-semibold text-balance">
             A agenda cheia, sem a recepção sobrecarregada.
           </h1>
           <ul className="space-y-3 text-primary-foreground/85">
@@ -163,11 +212,24 @@ export function LoginScreen() {
         </div>
 
         <div className="mx-auto w-full max-w-sm space-y-8">
-          <header className="space-y-2">
+          <header className="space-y-3">
             <BrandMark className="lg:hidden" />
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="-ml-3 h-8 gap-1.5 text-muted-foreground"
+            >
+              <Link href="/">
+                <ArrowLeft className="size-3.5" aria-hidden />
+                Voltar para a página inicial
+              </Link>
+            </Button>
             <h2 className="font-display text-2xl font-semibold">Entrar</h2>
-            <p className="text-sm text-muted-foreground">
-              Escolha um perfil de demonstração ou use as credenciais abaixo.
+            <p className="text-sm font-light text-muted-foreground">
+              {suggested
+                ? `As credenciais de ${suggested.description.split(" · ")[0]} já estão preenchidas — é só entrar.`
+                : "Escolha um perfil de demonstração ou use as credenciais abaixo."}
             </p>
           </header>
 
@@ -178,7 +240,12 @@ export function LoginScreen() {
                 type="button"
                 onClick={() => handleQuickAccess(option.role)}
                 disabled={quickPending !== null}
-                className="group flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:border-primary/40 hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
+                className={cn(
+                  "group flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left transition-colors hover:border-primary/40 hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60",
+                  suggested?.role === option.role
+                    ? "border-primary/60 bg-accent/50 ring-2 ring-primary/15"
+                    : "border-border",
+                )}
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                   {quickPending === option.role ? (

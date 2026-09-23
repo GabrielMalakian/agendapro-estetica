@@ -10,7 +10,7 @@ import {
   MessageSquare,
   Pencil,
   PlayCircle,
-  Scissors,
+  Sparkles,
   Trash2,
   UserRound,
   UserX,
@@ -287,7 +287,7 @@ export function AppointmentDetailSheet({
                   </div>
 
                   <div className="flex items-start gap-2.5">
-                    <Scissors className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+                    <Sparkles className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
                     <div>
                       <dt className="sr-only">Serviço</dt>
                       <dd>{service?.name ?? "—"}</dd>

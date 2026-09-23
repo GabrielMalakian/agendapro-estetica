@@ -2,6 +2,7 @@
 
 import { CalendarPlus, History, Star } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { EmptyState, ErrorState, ListSkeleton } from "@/components/common/states";
@@ -23,6 +24,10 @@ import { CancelAppointmentDialog } from "../cancel-appointment-dialog";
 import { ReviewDialog } from "../review-dialog";
 
 export function ClientAppointmentsView() {
+  const params = useSearchParams();
+  /** Os atalhos do início abrem direto no histórico (`?aba=historico`). */
+  const initialTab = params.get("aba") === "historico" ? "history" : "upcoming";
+
   const { client } = useCurrentClient();
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [reviewId, setReviewId] = useState<string | null>(null);
@@ -167,7 +172,7 @@ export function ClientAppointmentsView() {
         </p>
       </header>
 
-      <Tabs defaultValue="upcoming">
+      <Tabs defaultValue={initialTab}>
         <TabsList className="w-full">
           <TabsTrigger value="upcoming" className="flex-1">
             Próximos ({upcoming.length})

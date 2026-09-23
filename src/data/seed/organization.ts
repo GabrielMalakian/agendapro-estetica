@@ -30,14 +30,14 @@ export const DEMO_IDS = {
   clientGabriel: "55555555-5555-4555-8555-555555555551",
 } as const;
 
-export const COMPANY_SLUG = "studio-vitrine";
+export const COMPANY_SLUG = "clinica-lumiere";
 
 export function buildCompany(): Company {
   return {
     id: DEMO_IDS.company,
-    name: "Studio Vitrine",
+    name: "Clínica Lumière",
     slug: COMPANY_SLUG,
-    segment: "SALON",
+    segment: "AESTHETIC",
     logoUrl: null,
   };
 }
@@ -140,13 +140,15 @@ export function buildHolidays(random: Random, units: Unit[]): Holiday[] {
 
 export function buildRooms(random: Random, units: Unit[]): Room[] {
   const layout: { name: string; type: Room["type"] }[] = [
-    { name: "Cadeira 1", type: "CHAIR" },
-    { name: "Cadeira 2", type: "CHAIR" },
-    { name: "Cadeira 3", type: "CHAIR" },
-    { name: "Sala Estética 1", type: "ROOM" },
-    { name: "Sala Estética 2", type: "ROOM" },
-    { name: "Consultório Odonto", type: "ROOM" },
+    { name: "Sala Facial 1", type: "ROOM" },
+    { name: "Sala Facial 2", type: "ROOM" },
+    { name: "Sala Corporal 1", type: "ROOM" },
+    { name: "Sala Corporal 2", type: "ROOM" },
+    { name: "Sala de Massagem", type: "ROOM" },
+    { name: "Consultório de Avaliação", type: "ROOM" },
+    { name: "Cabine Express", type: "CHAIR" },
     { name: "Laser Diodo", type: "EQUIPMENT" },
+    { name: "Criolipólise", type: "EQUIPMENT" },
   ];
   return units.flatMap((unit) =>
     layout.map((room) => ({
@@ -169,34 +171,31 @@ interface ServiceBlueprint {
   roomMatch?: RegExp;
 }
 
-/** ~20 serviços cobrindo os quatro segmentos suportados. */
+/** Catálogo da clínica: estética facial, estética corporal e bem-estar. */
 const SERVICE_BLUEPRINTS: ServiceBlueprint[] = [
-  // Cabelo / salão
-  { name: "Corte feminino", description: "Corte com lavagem e finalização.", category: "HAIR", durationMinutes: 60, bufferMinutes: 10, price: 120, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Escova modelada", description: "Escova com finalização e babyliss opcional.", category: "HAIR", durationMinutes: 45, bufferMinutes: 5, price: 80, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Coloração raiz", description: "Retoque de raiz com coloração profissional.", category: "HAIR", durationMinutes: 90, bufferMinutes: 15, price: 210, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Mechas e iluminado", description: "Técnica de iluminado com matização.", category: "HAIR", durationMinutes: 180, bufferMinutes: 20, price: 480, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Hidratação profunda", description: "Tratamento reconstrutor em três etapas.", category: "HAIR", durationMinutes: 50, bufferMinutes: 10, price: 140, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Progressiva sem formol", description: "Alisamento com ativo orgânico.", category: "HAIR", durationMinutes: 150, bufferMinutes: 20, price: 390, requiresRoom: true, roomMatch: /Cadeira/ },
-  // Barbearia
-  { name: "Corte masculino", description: "Máquina e tesoura com acabamento na navalha.", category: "BARBER", durationMinutes: 30, bufferMinutes: 5, price: 55, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Barba terapia", description: "Toalha quente, navalha e hidratação.", category: "BARBER", durationMinutes: 30, bufferMinutes: 5, price: 45, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Pezinho", description: "Acabamento rápido de contorno.", category: "BARBER", durationMinutes: 15, bufferMinutes: 0, price: 25, requiresRoom: true, roomMatch: /Cadeira/ },
-  { name: "Pigmentação de barba", description: "Correção de falhas com pigmento.", category: "BARBER", durationMinutes: 40, bufferMinutes: 10, price: 90, requiresRoom: true, roomMatch: /Cadeira/ },
-  // Unhas
-  { name: "Manicure", description: "Cutilagem e esmaltação tradicional.", category: "NAILS", durationMinutes: 45, bufferMinutes: 5, price: 55, requiresRoom: false },
-  { name: "Pedicure", description: "Cuidado completo dos pés.", category: "NAILS", durationMinutes: 50, bufferMinutes: 10, price: 65, requiresRoom: false },
-  { name: "Alongamento em gel", description: "Alongamento com fibra e acabamento.", category: "NAILS", durationMinutes: 120, bufferMinutes: 15, price: 230, requiresRoom: false },
-  // Estética facial e corporal
-  { name: "Limpeza de pele profunda", description: "Extração, alta frequência e máscara calmante.", category: "SKIN", durationMinutes: 75, bufferMinutes: 15, price: 190, requiresRoom: true, roomMatch: /Sala Estética/ },
-  { name: "Peeling de diamante", description: "Esfoliação mecânica com ativos clareadores.", category: "SKIN", durationMinutes: 60, bufferMinutes: 15, price: 220, requiresRoom: true, roomMatch: /Sala Estética/ },
-  { name: "Microagulhamento facial", description: "Indução percutânea de colágeno.", category: "SKIN", durationMinutes: 80, bufferMinutes: 20, price: 340, requiresRoom: true, roomMatch: /Sala Estética/ },
+  // Estética facial
+  { name: "Avaliação estética", description: "Consulta inicial com análise de pele e plano de tratamento.", category: "SKIN", durationMinutes: 40, bufferMinutes: 10, price: 80, requiresRoom: true, roomMatch: /Consultório/ },
+  { name: "Limpeza de pele", description: "Extração, alta frequência e máscara calmante.", category: "SKIN", durationMinutes: 70, bufferMinutes: 15, price: 180, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Procedimento facial", description: "Protocolo de revitalização com ativos e máscara final.", category: "SKIN", durationMinutes: 60, bufferMinutes: 15, price: 240, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Peeling de diamante", description: "Esfoliação mecânica com ativos clareadores.", category: "SKIN", durationMinutes: 60, bufferMinutes: 15, price: 220, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Microagulhamento facial", description: "Indução percutânea de colágeno.", category: "SKIN", durationMinutes: 80, bufferMinutes: 20, price: 340, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Radiofrequência facial", description: "Estímulo de colágeno com aquecimento controlado.", category: "SKIN", durationMinutes: 50, bufferMinutes: 10, price: 260, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Hidratação facial", description: "Máscara nutritiva com ácido hialurônico.", category: "SKIN", durationMinutes: 45, bufferMinutes: 10, price: 160, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Revitalização com skinbooster", description: "Microinfusão de ativos hidratantes.", category: "SKIN", durationMinutes: 60, bufferMinutes: 20, price: 490, requiresRoom: true, roomMatch: /Sala Facial/ },
+  { name: "Retorno pós-procedimento", description: "Reavaliação rápida após o protocolo.", category: "SKIN", durationMinutes: 20, bufferMinutes: 5, price: 60, requiresRoom: true, roomMatch: /Consultório/ },
+  // Estética corporal
+  { name: "Drenagem linfática", description: "Sessão manual de 60 minutos.", category: "BODY", durationMinutes: 60, bufferMinutes: 10, price: 160, requiresRoom: true, roomMatch: /Sala Corporal/ },
+  { name: "Massagem modeladora", description: "Manobras firmes para contorno corporal.", category: "BODY", durationMinutes: 60, bufferMinutes: 10, price: 180, requiresRoom: true, roomMatch: /Sala Corporal/ },
+  { name: "Radiofrequência corporal", description: "Tratamento de flacidez em área localizada.", category: "BODY", durationMinutes: 50, bufferMinutes: 15, price: 240, requiresRoom: true, roomMatch: /Sala Corporal/ },
+  { name: "Detox corporal com argila", description: "Esfoliação, argila e envolvimento térmico.", category: "BODY", durationMinutes: 70, bufferMinutes: 15, price: 210, requiresRoom: true, roomMatch: /Sala Corporal/ },
+  { name: "Criolipólise", description: "Sessão de congelamento de gordura localizada.", category: "BODY", durationMinutes: 60, bufferMinutes: 20, price: 690, requiresRoom: true, roomMatch: /Criolipólise/ },
   { name: "Depilação a laser — axilas", description: "Sessão com laser de diodo.", category: "BODY", durationMinutes: 30, bufferMinutes: 10, price: 150, requiresRoom: true, roomMatch: /Laser/ },
-  { name: "Drenagem linfática", description: "Sessão manual de 60 minutos.", category: "BODY", durationMinutes: 60, bufferMinutes: 10, price: 160, requiresRoom: true, roomMatch: /Sala Estética/ },
-  // Odontologia
-  { name: "Avaliação odontológica", description: "Consulta inicial com plano de tratamento.", category: "DENTAL", durationMinutes: 40, bufferMinutes: 10, price: 120, requiresRoom: true, roomMatch: /Odonto/ },
-  { name: "Profilaxia e limpeza", description: "Raspagem, polimento e aplicação de flúor.", category: "DENTAL", durationMinutes: 50, bufferMinutes: 10, price: 210, requiresRoom: true, roomMatch: /Odonto/ },
-  { name: "Clareamento em consultório", description: "Sessão com gel de peróxido e fotoativação.", category: "DENTAL", durationMinutes: 70, bufferMinutes: 15, price: 690, requiresRoom: true, roomMatch: /Odonto/ },
+  { name: "Depilação a laser — pernas", description: "Sessão completa com laser de diodo.", category: "BODY", durationMinutes: 50, bufferMinutes: 10, price: 320, requiresRoom: true, roomMatch: /Laser/ },
+  // Bem-estar
+  { name: "Massagem relaxante", description: "Sessão de relaxamento com óleos essenciais.", category: "WELLNESS", durationMinutes: 60, bufferMinutes: 10, price: 170, requiresRoom: true, roomMatch: /Massagem/ },
+  { name: "Reflexologia podal", description: "Estímulo de pontos reflexos dos pés.", category: "WELLNESS", durationMinutes: 50, bufferMinutes: 10, price: 140, requiresRoom: true, roomMatch: /Massagem/ },
+  { name: "Ritual de aromaterapia", description: "Massagem longa com blend aromático.", category: "WELLNESS", durationMinutes: 90, bufferMinutes: 15, price: 280, requiresRoom: true, roomMatch: /Massagem/ },
+  { name: "Design de sobrancelhas", description: "Modelagem com pinça e acabamento.", category: "WELLNESS", durationMinutes: 30, bufferMinutes: 5, price: 70, requiresRoom: true, roomMatch: /Cabine/ },
 ];
 
 /** Combos: serviços compostos cuja duração é a soma dos itens. */
@@ -208,18 +207,18 @@ const COMBO_BLUEPRINTS: {
   price: number;
 }[] = [
   {
-    name: "Combo Barbearia (corte + barba)",
-    description: "Corte masculino com barba terapia no mesmo atendimento.",
-    category: "BARBER",
-    items: ["Corte masculino", "Barba terapia"],
-    price: 90,
+    name: "Protocolo Facial Completo",
+    description: "Limpeza de pele seguida de hidratação facial na mesma sessão.",
+    category: "SKIN",
+    items: ["Limpeza de pele", "Hidratação facial"],
+    price: 290,
   },
   {
-    name: "Combo Dia de Noiva",
-    description: "Escova modelada, manicure e limpeza de pele.",
-    category: "HAIR",
-    items: ["Escova modelada", "Manicure", "Limpeza de pele profunda"],
-    price: 290,
+    name: "Ritual Corpo & Mente",
+    description: "Drenagem linfática e massagem relaxante em sequência.",
+    category: "BODY",
+    items: ["Drenagem linfática", "Massagem relaxante"],
+    price: 280,
   },
 ];
 
@@ -315,9 +314,9 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   {
     name: "Ana Souza",
     email: "pro@demo.com",
-    specialty: "Cabeleireira e esteticista",
+    specialty: "Esteticista facial",
     unitIndex: 0,
-    categories: ["HAIR", "SKIN"],
+    categories: ["SKIN"],
     days: [1, 2, 3, 4, 5, 6],
     startTime: "09:00",
     endTime: "19:00",
@@ -325,10 +324,10 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   },
   {
     name: "Bruno Ferraz",
-    email: "bruno.ferraz@studiovitrine.com.br",
-    specialty: "Barbeiro",
+    email: "bruno.ferraz@clinicalumiere.com.br",
+    specialty: "Massoterapeuta",
     unitIndex: 0,
-    categories: ["BARBER"],
+    categories: ["WELLNESS"],
     days: [2, 3, 4, 5, 6],
     startTime: "10:00",
     endTime: "20:00",
@@ -336,10 +335,10 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   },
   {
     name: "Carla Mendes",
-    email: "carla.mendes@studiovitrine.com.br",
-    specialty: "Manicure e nail designer",
+    email: "carla.mendes@clinicalumiere.com.br",
+    specialty: "Biomédica esteta",
     unitIndex: 0,
-    categories: ["NAILS"],
+    categories: ["SKIN", "BODY"],
     days: [1, 2, 3, 4, 5],
     startTime: "09:00",
     endTime: "18:00",
@@ -347,10 +346,10 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   },
   {
     name: "Diego Nakamura",
-    email: "diego.nakamura@studiovitrine.com.br",
-    specialty: "Cirurgião-dentista",
+    email: "diego.nakamura@clinicalumiere.com.br",
+    specialty: "Fisioterapeuta dermatofuncional",
     unitIndex: 1,
-    categories: ["DENTAL"],
+    categories: ["BODY"],
     days: [1, 2, 3, 4, 5],
     startTime: "08:00",
     endTime: "17:00",
@@ -358,7 +357,7 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   },
   {
     name: "Elisa Prado",
-    email: "elisa.prado@studiovitrine.com.br",
+    email: "elisa.prado@clinicalumiere.com.br",
     specialty: "Esteticista corporal",
     unitIndex: 1,
     categories: ["BODY", "SKIN"],
@@ -369,10 +368,10 @@ const PROFESSIONAL_BLUEPRINTS: ProfessionalBlueprint[] = [
   },
   {
     name: "Felipe Moura",
-    email: "felipe.moura@studiovitrine.com.br",
-    specialty: "Barbeiro e colorista",
+    email: "felipe.moura@clinicalumiere.com.br",
+    specialty: "Terapeuta corporal",
     unitIndex: 1,
-    categories: ["BARBER", "HAIR"],
+    categories: ["WELLNESS", "BODY"],
     days: [2, 3, 4, 5, 6],
     startTime: "10:00",
     endTime: "20:00",
@@ -472,7 +471,7 @@ export function assignTimeOff(random: Random, professionals: Professional[]): vo
         startDate: iso(addDays(today, 5)),
         endDate: iso(addDays(today, 5)),
         allDay: true,
-        reason: "Congresso de odontologia",
+        reason: "Congresso de estética avançada",
       });
     }
     if (index === 0) {
@@ -486,7 +485,7 @@ export function assignTimeOff(random: Random, professionals: Professional[]): vo
         startTime: "15:00",
         endTime: "17:00",
         allDay: false,
-        reason: "Curso de colorimetria",
+        reason: "Curso de protocolos faciais",
       });
       pro.timeOff.push({
         id: random.uuid(),
@@ -509,9 +508,9 @@ export function buildPackages(
 ): Package[] {
   const packageable = [
     { serviceName: "Depilação a laser — axilas", sessions: 10, discount: 0.2 },
-    { serviceName: "Limpeza de pele profunda", sessions: 5, discount: 0.15 },
+    { serviceName: "Limpeza de pele", sessions: 5, discount: 0.15 },
     { serviceName: "Drenagem linfática", sessions: 10, discount: 0.22 },
-    { serviceName: "Corte masculino", sessions: 4, discount: 0.12 },
+    { serviceName: "Massagem relaxante", sessions: 4, discount: 0.12 },
     { serviceName: "Microagulhamento facial", sessions: 4, discount: 0.18 },
   ];
 
@@ -638,9 +637,9 @@ export function buildSettings(): Settings {
       allowOverbooking: true,
     },
     appearance: {
-      primaryColor: "#1f6f7a",
+      primaryColor: "#7d4648",
       logoUrl: null,
-      displayName: "Studio Vitrine",
+      displayName: "Clínica Lumière",
     },
     permissions: {
       ADMIN: {
@@ -680,6 +679,6 @@ export function buildSettings(): Settings {
         settings: [],
       },
     },
-    enabledSegmentModules: ["SALON", "BARBERSHOP", "AESTHETIC", "DENTAL"],
+    enabledSegmentModules: ["AESTHETIC"],
   };
 }

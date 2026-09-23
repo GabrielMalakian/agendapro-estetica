@@ -11,7 +11,7 @@ import { deflateSync } from "node:zlib";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-const BRAND = [31, 111, 122]; // #1f6f7a
+const BRAND = [125, 70, 72]; // #7d4648
 const INK = [255, 255, 255];
 
 /** CRC32 — exigido por cada chunk do PNG. */

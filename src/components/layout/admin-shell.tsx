@@ -9,7 +9,7 @@ import {
   LayoutDashboard,
   MessageSquareText,
   Menu,
-  Scissors,
+  Sparkles,
   Settings,
   Users,
   UserSquare2,
@@ -63,7 +63,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
   {
     group: "Cadastros",
     items: [
-      { href: "/admin/servicos", label: "Serviços", icon: Scissors, resource: "services", matchPrefix: true },
+      { href: "/admin/servicos", label: "Serviços", icon: Sparkles, resource: "services", matchPrefix: true },
       {
         href: "/admin/profissionais",
         label: "Profissionais",

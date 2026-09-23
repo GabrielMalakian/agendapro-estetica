@@ -364,11 +364,11 @@ function TemplateEditor({
     buildTemplateContext({
       clientName: "Mariana Santos",
       professionalName: "Ana Souza",
-      serviceName: "Corte feminino",
+      serviceName: "Limpeza de pele",
       unitName,
       appointment: {
         startsAt: new Date(Date.now() + 86_400_000).toISOString(),
-        price: 120,
+        price: 180,
       },
     }),
   );

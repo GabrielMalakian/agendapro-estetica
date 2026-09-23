@@ -6,6 +6,7 @@ export const SERVICE_CATEGORIES = [
   "NAILS",
   "SKIN",
   "BODY",
+  "WELLNESS",
   "DENTAL",
   "OTHER",
 ] as const;
@@ -17,6 +18,7 @@ export const SERVICE_CATEGORY_LABELS: Record<ServiceCategory, string> = {
   NAILS: "Unhas",
   SKIN: "Estética facial",
   BODY: "Estética corporal",
+  WELLNESS: "Bem-estar",
   DENTAL: "Odontologia",
   OTHER: "Outros",
 };

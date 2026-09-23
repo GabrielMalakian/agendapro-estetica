@@ -9,17 +9,17 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AgendaPro — Agendamento para clínicas, salões e barbearias",
+    name: "AgendaPro — Agendamento para clínicas de estética",
     short_name: "AgendaPro",
     description:
-      "Agenda, clientes, financeiro e lembretes em um só lugar. Funciona no celular, instalável e com acesso offline aos dados já carregados.",
+      "Agenda, clientes, financeiro e lembretes para clínicas de estética e bem-estar. Funciona no celular, instalável e com acesso offline aos dados já carregados.",
     id: "/",
     start_url: "/login",
     scope: "/",
     display: "standalone",
     orientation: "portrait-primary",
-    background_color: "#f7f9f9",
-    theme_color: "#1f6f7a",
+    background_color: "#fdf9f6",
+    theme_color: "#7d4648",
     lang: "pt-BR",
     dir: "ltr",
     categories: ["business", "productivity", "lifestyle"],
