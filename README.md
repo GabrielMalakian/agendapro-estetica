@@ -259,6 +259,9 @@ cada gráfico.
   As pessoas nas fotos são modelos de banco de imagens e não têm relação com
   os dados fictícios da demonstração.
 
+  ---
+*Revisão técnica do MVP realizada para a disciplina.*
+
 
   <!-- Revisão técnica do MVP -->
   docs: preparação para revisão técnica
